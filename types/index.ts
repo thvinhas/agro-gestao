@@ -51,6 +51,84 @@ export interface ResultadoMensal {
   litros_produzidos?: number
 }
 
+export interface Venda {
+  id: number
+  animal_type: 'vaca' | 'bezerro'
+  animal_id: number
+  valor: number
+  arroba: number | null
+  data_venda: string
+  created_at: string
+}
+
+export interface Vaca {
+  id: number
+  numero: number
+  nome: string
+  data: string | null
+  observacoes: string | null
+  ativo: boolean
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface VacaInput {
+  numero: number
+  nome: string
+  data?: string | null
+  observacoes?: string | null
+}
+
+export interface Parto {
+  id: number
+  vaca_id: number
+  data_parto: string
+  sexo_bezerro: string | null
+  numero_bezerro: number | null
+  data_apartacao: string | null
+  status_bezerro: string | null
+  virou_vaca_id: number | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PartoInput {
+  vaca_id: number
+  data_parto: string
+  sexo_bezerro?: string | null
+  numero_bezerro?: number | null
+  data_apartacao?: string | null
+}
+
+export interface ProducaoLeite {
+  id: number
+  vaca_id: number
+  quantidade: number
+  data: string
+  created_at: string
+}
+
+export interface ProducaoLeiteInput {
+  vaca_id: number
+  quantidade: number
+}
+
+export interface Cio {
+  id: number
+  vaca_id: number
+  data_cio: string
+  observacao: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CioInput {
+  vaca_id: number
+  data_cio: string
+  observacao?: string | null
+}
+
 export interface PlanilhaData {
   mes: number
   ano: number

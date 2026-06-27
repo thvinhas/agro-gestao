@@ -304,6 +304,24 @@ body {
 .link-btn { background: none; border: none; color: var(--verde); font-weight: 600; cursor: pointer; font-size: 0.85rem; font-family: inherit; text-decoration: underline; }
 .link-btn:hover { color: var(--verde-claro); }
 
+/* ACTIONS CELL IN TABLES */
+.tabela-planilha td.acoes {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.btn-excluir {
+  background: transparent;
+  border: 1px solid var(--vermelho);
+  color: var(--vermelho);
+}
+.btn-excluir:hover {
+  background: #fde8e8;
+}
+
 /* OFFLINE BANNER */
 .offline-banner {
   background: var(--amarelo);

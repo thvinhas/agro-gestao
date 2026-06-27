@@ -150,6 +150,145 @@ JOIN categorias c ON i.categoria_id = c.id;
 -- 5. PERMISSÕES (roles anon e authenticated)
 -- ============================================================
 
+-- ============================================================
+-- 7. TABELA: Vacas (controle de rebanho)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS vacas (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  numero INT NOT NULL,
+  nome TEXT NOT NULL,
+  data DATE,
+  ativo BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(numero, user_id)
+);
+
+ALTER TABLE vacas ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own vacas" ON vacas;
+DROP POLICY IF EXISTS "Users can insert their own vacas" ON vacas;
+DROP POLICY IF EXISTS "Users can update their own vacas" ON vacas;
+DROP POLICY IF EXISTS "Users can delete their own vacas" ON vacas;
+
+CREATE POLICY "Users can view their own vacas" ON vacas
+  FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own vacas" ON vacas
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own vacas" ON vacas
+  FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own vacas" ON vacas
+  FOR DELETE TO authenticated USING (auth.uid() = user_id);
+
+-- Adiciona coluna observacoes na tabela vacas (se não existir)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'vacas' AND column_name = 'observacoes'
+  ) THEN
+    ALTER TABLE vacas ADD COLUMN observacoes TEXT;
+  END IF;
+END $$;
+
+-- ============================================================
+-- 9. TABELAS: Ficha da Vaca (partos, produção, cios)
+-- ============================================================
+
+-- Partos (cada cria)
+CREATE TABLE IF NOT EXISTS partos (
+  id SERIAL PRIMARY KEY,
+  vaca_id INT NOT NULL REFERENCES vacas(id) ON DELETE CASCADE,
+  data_parto DATE NOT NULL,
+  sexo_bezerro TEXT,
+  numero_bezerro INT,
+  data_apartacao DATE,
+  status_bezerro TEXT DEFAULT 'pendente',
+  virou_vaca_id INT REFERENCES vacas(id),
+  valor_venda NUMERIC(10,2),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE partos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own partos" ON partos;
+DROP POLICY IF EXISTS "Users can insert their own partos" ON partos;
+DROP POLICY IF EXISTS "Users can update their own partos" ON partos;
+DROP POLICY IF EXISTS "Users can delete their own partos" ON partos;
+
+CREATE POLICY "Users can view their own partos" ON partos
+  FOR SELECT TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can insert their own partos" ON partos
+  FOR INSERT TO authenticated WITH CHECK (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can update their own partos" ON partos
+  FOR UPDATE TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can delete their own partos" ON partos
+  FOR DELETE TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+-- Produção de leite (medições quinzenais)
+CREATE TABLE IF NOT EXISTS producao_leite (
+  id SERIAL PRIMARY KEY,
+  vaca_id INT NOT NULL REFERENCES vacas(id) ON DELETE CASCADE,
+  quantidade NUMERIC(10,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE producao_leite ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own producao_leite" ON producao_leite;
+DROP POLICY IF EXISTS "Users can insert their own producao_leite" ON producao_leite;
+DROP POLICY IF EXISTS "Users can delete their own producao_leite" ON producao_leite;
+
+CREATE POLICY "Users can view their own producao_leite" ON producao_leite
+  FOR SELECT TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can insert their own producao_leite" ON producao_leite
+  FOR INSERT TO authenticated WITH CHECK (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can delete their own producao_leite" ON producao_leite
+  FOR DELETE TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+-- Cios (registro de cios)
+CREATE TABLE IF NOT EXISTS cios (
+  id SERIAL PRIMARY KEY,
+  vaca_id INT NOT NULL REFERENCES vacas(id) ON DELETE CASCADE,
+  data_cio DATE NOT NULL,
+  observacao TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE cios ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own cios" ON cios;
+DROP POLICY IF EXISTS "Users can insert their own cios" ON cios;
+DROP POLICY IF EXISTS "Users can update their own cios" ON cios;
+DROP POLICY IF EXISTS "Users can delete their own cios" ON cios;
+
+CREATE POLICY "Users can view their own cios" ON cios
+  FOR SELECT TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can insert their own cios" ON cios
+  FOR INSERT TO authenticated WITH CHECK (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can update their own cios" ON cios
+  FOR UPDATE TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can delete their own cios" ON cios
+  FOR DELETE TO authenticated USING (vaca_id IN (SELECT id FROM vacas WHERE user_id = auth.uid()));
+
+-- ============================================================
+-- 10. PERMISSÕES
+-- ============================================================
+
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;

@@ -3,18 +3,7 @@
 import { useAuth } from '@/lib/auth-context'
 
 export default function NavBar() {
-  const { user, loading, signOut } = useAuth()
-
-  if (loading) {
-    return (
-      <nav className="nav">
-        <div className="nav-inner">
-          <span className="nav-logo">Gestão Leiteira</span>
-          <div className="nav-links" />
-        </div>
-      </nav>
-    )
-  }
+  const { user, signOut } = useAuth()
 
   return (
     <nav className="nav">
@@ -23,6 +12,8 @@ export default function NavBar() {
         <div className="nav-links">
           {user ? (
             <>
+              <a href="/vacas">Vacas</a>
+              <a href="/bezerros">Bezerros</a>
               <a href="/dashboard">Dashboard</a>
               <a href="/lancamentos">Lançamentos</a>
               <span className="nav-user">{user.email}</span>
