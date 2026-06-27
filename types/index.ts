@@ -21,6 +21,7 @@ export interface Item {
 export interface Lancamento {
   id: string
   item_id: number
+  user_id: string
   mes: number
   ano: number
   quantidade: number | null

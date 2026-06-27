@@ -1,7 +1,6 @@
 import { supabase } from './supabase'
 import type { Categoria, Item, Lancamento, LancamentoInput, PlanilhaData, ResultadoMensal } from '@/types'
 
-// Busca todos os itens com suas categorias
 export async function getItens(): Promise<Item[]> {
   const { data, error } = await supabase
     .from('itens')
@@ -13,7 +12,6 @@ export async function getItens(): Promise<Item[]> {
   return data ?? []
 }
 
-// Busca categorias
 export async function getCategorias(): Promise<Categoria[]> {
   const { data, error } = await supabase
     .from('categorias')
@@ -24,7 +22,6 @@ export async function getCategorias(): Promise<Categoria[]> {
   return data ?? []
 }
 
-// Busca lançamentos de um mês/ano
 export async function getLancamentos(mes: number, ano: number): Promise<Lancamento[]> {
   const { data, error } = await supabase
     .from('lancamentos')
@@ -36,20 +33,23 @@ export async function getLancamentos(mes: number, ano: number): Promise<Lancamen
   return data ?? []
 }
 
-// Salva ou atualiza um lançamento (upsert)
 export async function salvarLancamento(input: LancamentoInput): Promise<Lancamento> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Usuário não autenticado')
+
   const { data, error } = await supabase
     .from('lancamentos')
     .upsert(
       {
         item_id: input.item_id,
+        user_id: user.id,
         mes: input.mes,
         ano: input.ano,
         quantidade: input.quantidade ?? null,
         valor_unitario: input.valor_unitario ?? null,
         custo_total_manual: input.custo_total_manual ?? null,
       },
-      { onConflict: 'item_id,mes,ano' }
+      { onConflict: 'item_id,mes,ano,user_id' }
     )
     .select()
     .single()
@@ -58,7 +58,6 @@ export async function salvarLancamento(input: LancamentoInput): Promise<Lancamen
   return data
 }
 
-// Monta a estrutura completa da planilha para um mês
 export async function getPlanilha(mes: number, ano: number): Promise<PlanilhaData> {
   const [categorias, itens, lancamentos] = await Promise.all([
     getCategorias(),
@@ -88,7 +87,6 @@ export async function getPlanilha(mes: number, ano: number): Promise<PlanilhaDat
   const total_custos_fixos = planilhaCategorias.find((c) => c.categoria.tipo === 'custo_fixo')?.total ?? 0
   const lucro_operacional = receita_total - total_custos_variaveis - total_custos_fixos
 
-  // Custo por litro: busca lançamento de venda de leite
   const vendaLeite = lancamentos.find((l) => l.item?.nome === 'Venda de leite')
   const litros_produzidos = vendaLeite?.quantidade ?? undefined
   const custo_por_litro = litros_produzidos
@@ -107,7 +105,6 @@ export async function getPlanilha(mes: number, ano: number): Promise<PlanilhaDat
   return { mes, ano, categorias: planilhaCategorias, resultado }
 }
 
-// Histórico dos últimos 12 meses para gráficos
 export async function getHistorico(meses = 12) {
   const agora = new Date()
   const resultados = []
