@@ -1,7 +1,6 @@
 # 🐄 Gestão Leiteira
 
 Sistema de gestão financeira para fazenda leiteira com planilha de custos, receitas e resultado operacional.
-
 **Stack:** Next.js 14 · TypeScript · Supabase · Vercel
 
 ---
@@ -62,12 +61,13 @@ O Vercel vai gerar uma URL como `https://fazenda-leiteira.vercel.app`
 
 ## 📊 Funcionalidades
 
-| Tela | O que faz |
-|---|---|
+| Tela           | O que faz                                     |
+| -------------- | --------------------------------------------- |
 | `/lancamentos` | Planilha mensal completa com entrada de dados |
-| `/dashboard` | Gráficos de evolução dos últimos 12 meses |
+| `/dashboard`   | Gráficos de evolução dos últimos 12 meses     |
 
 ### Na planilha de lançamentos:
+
 - Selecione mês e ano
 - Preencha os campos e clique **Salvar** (ou pressione Enter)
 - Itens com unidade (kg, Litros): preencha Quantidade + Valor Unitário
