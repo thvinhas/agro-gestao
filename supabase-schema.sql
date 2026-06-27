@@ -43,6 +43,23 @@ CREATE TABLE IF NOT EXISTS lancamentos (
 );
 
 -- ============================================================
+-- 1.5 MIGRAÇÃO: adiciona user_id se a tabela já existia sem ele
+-- ============================================================
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'lancamentos' AND column_name = 'user_id'
+  ) THEN
+    ALTER TABLE lancamentos ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+    ALTER TABLE lancamentos ALTER COLUMN user_id SET NOT NULL;
+    ALTER TABLE lancamentos DROP CONSTRAINT IF EXISTS lancamentos_item_id_mes_ano_key;
+    ALTER TABLE lancamentos DROP CONSTRAINT IF EXISTS lancamentos_unique;
+    ALTER TABLE lancamentos ADD CONSTRAINT lancamentos_unique UNIQUE(item_id, mes, ano, user_id);
+  END IF;
+END $$;
+
+-- ============================================================
 -- 2. TRIGGER: calcular custo_total automaticamente
 -- ============================================================
 
@@ -142,7 +159,11 @@ GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated;
 -- 6. ROW LEVEL SECURITY
 -- ============================================================
 
--- Habilita RLS
+-- Desabilita RLS em tabelas de referência (compartilhadas entre usuários)
+ALTER TABLE categorias DISABLE ROW LEVEL SECURITY;
+ALTER TABLE itens DISABLE ROW LEVEL SECURITY;
+
+-- Habilita RLS apenas em lancamentos (dados por usuário)
 ALTER TABLE lancamentos ENABLE ROW LEVEL SECURITY;
 
 -- Remove políticas antigas (para executar múltiplas vezes)

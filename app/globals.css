@@ -303,3 +303,16 @@ body {
 .login-toggle { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--cinza); }
 .link-btn { background: none; border: none; color: var(--verde); font-weight: 600; cursor: pointer; font-size: 0.85rem; font-family: inherit; text-decoration: underline; }
 .link-btn:hover { color: var(--verde-claro); }
+
+/* OFFLINE BANNER */
+.offline-banner {
+  background: var(--amarelo);
+  color: #92400e;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  position: sticky;
+  top: 60px;
+  z-index: 49;
+}

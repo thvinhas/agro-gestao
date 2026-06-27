@@ -1,0 +1,15 @@
+{
+  "name": "Gestão Leiteira",
+  "short_name": "Gestão Leiteira",
+  "description": "Planilha de custos e receitas para fazenda leiteira",
+  "start_url": "/lancamentos",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f0f7f4",
+  "theme_color": "#2d6a4f",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

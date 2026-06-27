@@ -1,0 +1,52 @@
+<svg width="500" height="500" viewBox="0 0 680 680" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Ícone Agro Gestão</title>
+  <desc>Ícone quadrado com fundo verde escuro, folha estilizada e gráfico de linha representando gestão agrícola</desc>
+
+  <defs>
+    <clipPath id="rounded">
+      <rect x="90" y="90" width="500" height="500" rx="100"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fundo -->
+  <rect x="90" y="90" width="500" height="500" rx="100" fill="#1a4731"/>
+
+  <g clip-path="url(#rounded)">
+    <!-- Gradiente de terra no fundo -->
+    <rect x="90" y="420" width="500" height="170" fill="#0f2d1e"/>
+
+    <!-- Sol -->
+    <circle cx="530" cy="195" r="55" fill="#f4c542" opacity="0.18"/>
+    <circle cx="530" cy="195" r="38" fill="#f4c542" opacity="0.28"/>
+
+    <!-- Caule -->
+    <line x1="340" y1="490" x2="340" y2="310" stroke="#52b788" stroke-width="14" stroke-linecap="round"/>
+    <!-- Folha esquerda -->
+    <path d="M340 390 Q270 330 210 360 Q260 290 340 330" fill="#40916c"/>
+    <!-- Folha direita -->
+    <path d="M340 350 Q410 280 470 300 Q430 230 340 300" fill="#52b788"/>
+    <!-- Folha principal top -->
+    <path d="M340 310 Q340 230 390 190 Q410 260 340 310" fill="#74c69d"/>
+
+    <!-- Linha de gráfico -->
+    <polyline
+      points="140,430 210,380 280,400 350,330 420,350 490,280 560,300"
+      fill="none"
+      stroke="#95d5b2"
+      stroke-width="8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      opacity="0.6"
+    />
+    <!-- Pontos do gráfico -->
+    <circle cx="210" cy="380" r="7" fill="#d8f3dc" opacity="0.7"/>
+    <circle cx="350" cy="330" r="7" fill="#d8f3dc" opacity="0.7"/>
+    <circle cx="490" cy="280" r="9" fill="#f4c542" opacity="0.9"/>
+
+    <!-- Linha de solo -->
+    <rect x="90" y="460" width="500" height="6" fill="#40916c" opacity="0.5"/>
+  </g>
+
+  <!-- Borda sutil -->
+  <rect x="90" y="90" width="500" height="500" rx="100" fill="none" stroke="#52b788" stroke-width="4" opacity="0.4"/>
+</svg>
