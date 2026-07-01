@@ -184,6 +184,18 @@ export async function salvarParto(input: PartoInput, id?: number): Promise<Parto
     data_apartacao: input.data_apartacao ?? null,
   }
 
+  if (!id) {
+    const { data: maxData } = await supabase
+      .from('partos')
+      .select('numero_parto')
+      .eq('vaca_id', input.vaca_id)
+      .order('numero_parto', { ascending: false })
+      .limit(1)
+
+    const nextNumero = (maxData?.[0]?.numero_parto ?? 0) + 1
+    record.numero_parto = nextNumero
+  }
+
   let query
   if (id) {
     query = supabase.from('partos').update(record).eq('id', id).select().single()

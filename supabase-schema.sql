@@ -204,6 +204,7 @@ CREATE TABLE IF NOT EXISTS partos (
   id SERIAL PRIMARY KEY,
   vaca_id INT NOT NULL REFERENCES vacas(id) ON DELETE CASCADE,
   data_parto DATE NOT NULL,
+  numero_parto INT,
   sexo_bezerro TEXT,
   numero_bezerro INT,
   data_apartacao DATE,

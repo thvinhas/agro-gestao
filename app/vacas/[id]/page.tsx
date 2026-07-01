@@ -501,7 +501,7 @@ export default function FichaVacaPage() {
                   <tbody>
                     {partos.map(p => (
                       <tr key={p.id}>
-                        <td>{fmtData(p.data_parto)}</td>
+                        <td>#{p.numero_parto} - {fmtData(p.data_parto)}</td>
                         <td>{p.sexo_bezerro ?? '-'}</td>
                         <td>{p.numero_bezerro ?? '-'}</td>
                         <td>

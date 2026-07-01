@@ -1,43 +1,18 @@
-create sequence "public"."categorias_id_seq";
+-- This migration is safe to run on both a fresh database and one that already has categorias/itens/lancamentos
 
-create sequence "public"."cios_id_seq";
-
-create sequence "public"."itens_id_seq";
-
-create sequence "public"."partos_id_seq";
-
-create sequence "public"."producao_leite_id_seq";
-
-create sequence "public"."vacas_id_seq";
-
-create sequence "public"."vendas_id_seq";
-
-
-  create table "public"."categorias" (
+-- categorias
+create sequence if not exists "public"."categorias_id_seq";
+create table if not exists "public"."categorias" (
     "id" integer not null default nextval('public.categorias_id_seq'::regclass),
     "nome" text not null,
     "tipo" text not null,
     "ordem" integer not null default 0
-      );
+);
+alter sequence "public"."categorias_id_seq" owned by "public"."categorias"."id";
 
-
-alter table "public"."categorias" enable row level security;
-
-
-  create table "public"."cios" (
-    "id" integer not null default nextval('public.cios_id_seq'::regclass),
-    "vaca_id" integer not null,
-    "data_cio" date not null,
-    "observacao" text,
-    "created_at" timestamp with time zone default now(),
-    "updated_at" timestamp with time zone default now()
-      );
-
-
-alter table "public"."cios" enable row level security;
-
-
-  create table "public"."itens" (
+-- itens
+create sequence if not exists "public"."itens_id_seq";
+create table if not exists "public"."itens" (
     "id" integer not null default nextval('public.itens_id_seq'::regclass),
     "categoria_id" integer,
     "nome" text not null,
@@ -45,13 +20,11 @@ alter table "public"."cios" enable row level security;
     "tem_quantidade" boolean default true,
     "ordem" integer not null default 0,
     "ativo" boolean default true
-      );
+);
+alter sequence "public"."itens_id_seq" owned by "public"."itens"."id";
 
-
-alter table "public"."itens" enable row level security;
-
-
-  create table "public"."lancamentos" (
+-- lancamentos
+create table if not exists "public"."lancamentos" (
     "id" uuid not null default gen_random_uuid(),
     "item_id" integer,
     "user_id" uuid not null,
@@ -63,42 +36,17 @@ alter table "public"."itens" enable row level security;
     "custo_total" numeric(12,2),
     "created_at" timestamp with time zone default now(),
     "updated_at" timestamp with time zone default now()
-      );
+);
 
+-- pecuaria sequences
+create sequence if not exists "public"."vacas_id_seq";
+create sequence if not exists "public"."partos_id_seq";
+create sequence if not exists "public"."producao_leite_id_seq";
+create sequence if not exists "public"."cios_id_seq";
+create sequence if not exists "public"."vendas_id_seq";
 
-alter table "public"."lancamentos" enable row level security;
-
-
-  create table "public"."partos" (
-    "id" integer not null default nextval('public.partos_id_seq'::regclass),
-    "vaca_id" integer not null,
-    "data_parto" date not null,
-    "sexo_bezerro" text,
-    "numero_bezerro" integer,
-    "data_apartacao" date,
-    "created_at" timestamp with time zone default now(),
-    "updated_at" timestamp with time zone default now(),
-    "status_bezerro" text default 'pendente'::text,
-    "virou_vaca_id" integer
-      );
-
-
-alter table "public"."partos" enable row level security;
-
-
-  create table "public"."producao_leite" (
-    "id" integer not null default nextval('public.producao_leite_id_seq'::regclass),
-    "vaca_id" integer not null,
-    "quantidade" numeric(10,2) not null,
-    "created_at" timestamp with time zone default now(),
-    "data" date not null default CURRENT_DATE
-      );
-
-
-alter table "public"."producao_leite" enable row level security;
-
-
-  create table "public"."vacas" (
+-- vacas
+create table if not exists "public"."vacas" (
     "id" integer not null default nextval('public.vacas_id_seq'::regclass),
     "user_id" uuid not null,
     "numero" integer not null,
@@ -108,13 +56,48 @@ alter table "public"."producao_leite" enable row level security;
     "created_at" timestamp with time zone default now(),
     "updated_at" timestamp with time zone default now(),
     "observacoes" text
-      );
+);
+alter sequence "public"."vacas_id_seq" owned by "public"."vacas"."id";
 
+-- partos
+create table if not exists "public"."partos" (
+    "id" integer not null default nextval('public.partos_id_seq'::regclass),
+    "vaca_id" integer not null,
+    "data_parto" date not null,
+    "numero_parto" integer,
+    "sexo_bezerro" text,
+    "numero_bezerro" integer,
+    "data_apartacao" date,
+    "created_at" timestamp with time zone default now(),
+    "updated_at" timestamp with time zone default now(),
+    "status_bezerro" text default 'pendente'::text,
+    "virou_vaca_id" integer
+);
+alter sequence "public"."partos_id_seq" owned by "public"."partos"."id";
 
-alter table "public"."vacas" enable row level security;
+-- producao_leite
+create table if not exists "public"."producao_leite" (
+    "id" integer not null default nextval('public.producao_leite_id_seq'::regclass),
+    "vaca_id" integer not null,
+    "quantidade" numeric(10,2) not null,
+    "created_at" timestamp with time zone default now(),
+    "data" date not null default CURRENT_DATE
+);
+alter sequence "public"."producao_leite_id_seq" owned by "public"."producao_leite"."id";
 
+-- cios
+create table if not exists "public"."cios" (
+    "id" integer not null default nextval('public.cios_id_seq'::regclass),
+    "vaca_id" integer not null,
+    "data_cio" date not null,
+    "observacao" text,
+    "created_at" timestamp with time zone default now(),
+    "updated_at" timestamp with time zone default now()
+);
+alter sequence "public"."cios_id_seq" owned by "public"."cios"."id";
 
-  create table "public"."vendas" (
+-- vendas
+create table if not exists "public"."vendas" (
     "id" integer not null default nextval('public.vendas_id_seq'::regclass),
     "animal_type" text not null,
     "animal_id" integer not null,
@@ -122,697 +105,277 @@ alter table "public"."vacas" enable row level security;
     "arroba" numeric,
     "data_venda" date not null default CURRENT_DATE,
     "created_at" timestamp with time zone default now()
-      );
-
-
-alter sequence "public"."categorias_id_seq" owned by "public"."categorias"."id";
-
-alter sequence "public"."cios_id_seq" owned by "public"."cios"."id";
-
-alter sequence "public"."itens_id_seq" owned by "public"."itens"."id";
-
-alter sequence "public"."partos_id_seq" owned by "public"."partos"."id";
-
-alter sequence "public"."producao_leite_id_seq" owned by "public"."producao_leite"."id";
-
-alter sequence "public"."vacas_id_seq" owned by "public"."vacas"."id";
-
+);
 alter sequence "public"."vendas_id_seq" owned by "public"."vendas"."id";
 
-CREATE UNIQUE INDEX categorias_pkey ON public.categorias USING btree (id);
+----------------------- indexes -----------------------
 
-CREATE UNIQUE INDEX cios_pkey ON public.cios USING btree (id);
+create unique index if not exists categorias_pkey on "public"."categorias" using btree (id);
+create unique index if not exists itens_pkey on "public"."itens" using btree (id);
+create unique index if not exists lancamentos_pkey on "public"."lancamentos" using btree (id);
+create unique index if not exists vacas_pkey on "public"."vacas" using btree (id);
+create unique index if not exists partos_pkey on "public"."partos" using btree (id);
+create unique index if not exists producao_leite_pkey on "public"."producao_leite" using btree (id);
+create unique index if not exists cios_pkey on "public"."cios" using btree (id);
+create unique index if not exists vendas_pkey on "public"."vendas" using btree (id);
 
-CREATE INDEX idx_cios_vaca_id ON public.cios USING btree (vaca_id);
+create unique index if not exists vacas_numero_user_id_key on "public"."vacas" using btree (numero, user_id);
+create unique index if not exists lancamentos_item_id_mes_ano_user_id_key on "public"."lancamentos" using btree (item_id, mes, ano, user_id);
 
-CREATE INDEX idx_itens_categoria_id ON public.itens USING btree (categoria_id);
+create index if not exists idx_partos_vaca_id on "public"."partos" using btree (vaca_id);
+create index if not exists idx_producao_leite_vaca_id on "public"."producao_leite" using btree (vaca_id);
+create index if not exists idx_producao_leite_data on "public"."producao_leite" using btree (data);
+create index if not exists idx_cios_vaca_id on "public"."cios" using btree (vaca_id);
+create index if not exists idx_itens_categoria_id on "public"."itens" using btree (categoria_id);
+create index if not exists idx_lancamentos_item_id on "public"."lancamentos" using btree (item_id);
+create index if not exists idx_vendas_data on "public"."vendas" using btree (data_venda);
 
-CREATE INDEX idx_lancamentos_item_id ON public.lancamentos USING btree (item_id);
+----------------------- primary keys -----------------------
 
-CREATE INDEX idx_partos_vaca_id ON public.partos USING btree (vaca_id);
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'categorias_pkey') then
+    alter table "public"."categorias" add constraint "categorias_pkey" primary key using index "categorias_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'itens_pkey') then
+    alter table "public"."itens" add constraint "itens_pkey" primary key using index "itens_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'lancamentos_pkey') then
+    alter table "public"."lancamentos" add constraint "lancamentos_pkey" primary key using index "lancamentos_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'vacas_pkey') then
+    alter table "public"."vacas" add constraint "vacas_pkey" primary key using index "vacas_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'partos_pkey') then
+    alter table "public"."partos" add constraint "partos_pkey" primary key using index "partos_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'producao_leite_pkey') then
+    alter table "public"."producao_leite" add constraint "producao_leite_pkey" primary key using index "producao_leite_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'cios_pkey') then
+    alter table "public"."cios" add constraint "cios_pkey" primary key using index "cios_pkey";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'vendas_pkey') then
+    alter table "public"."vendas" add constraint "vendas_pkey" primary key using index "vendas_pkey";
+  end if;
+end $$;
 
-CREATE INDEX idx_producao_leite_data ON public.producao_leite USING btree (data);
+----------------------- constraints -----------------------
 
-CREATE INDEX idx_producao_leite_vaca_id ON public.producao_leite USING btree (vaca_id);
+do $$ begin
+  -- check constraints
+  if not exists (select 1 from pg_constraint where conname = 'categorias_tipo_check') then
+    alter table "public"."categorias" add constraint "categorias_tipo_check" check (tipo = any (array['receita'::text, 'custo_variavel'::text, 'custo_fixo'::text]));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'lancamentos_mes_check') then
+    alter table "public"."lancamentos" add constraint "lancamentos_mes_check" check (mes >= 1 and mes <= 12);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'lancamentos_ano_check') then
+    alter table "public"."lancamentos" add constraint "lancamentos_ano_check" check (ano >= 2000 and ano <= 2100);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'vendas_animal_type_check') then
+    alter table "public"."vendas" add constraint "vendas_animal_type_check" check (animal_type = any (array['vaca'::text, 'bezerro'::text]));
+  end if;
 
-CREATE INDEX idx_vendas_data ON public.vendas USING btree (data_venda);
+  -- foreign keys
+  if not exists (select 1 from pg_constraint where conname = 'itens_categoria_id_fkey') then
+    alter table "public"."itens" add constraint "itens_categoria_id_fkey" foreign key (categoria_id) references "public"."categorias"(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'lancamentos_item_id_fkey') then
+    alter table "public"."lancamentos" add constraint "lancamentos_item_id_fkey" foreign key (item_id) references "public"."itens"(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'lancamentos_user_id_fkey') then
+    alter table "public"."lancamentos" add constraint "lancamentos_user_id_fkey" foreign key (user_id) references auth.users(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'vacas_user_id_fkey') then
+    alter table "public"."vacas" add constraint "vacas_user_id_fkey" foreign key (user_id) references auth.users(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'partos_vaca_id_fkey') then
+    alter table "public"."partos" add constraint "partos_vaca_id_fkey" foreign key (vaca_id) references "public"."vacas"(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'partos_virou_vaca_id_fkey') then
+    alter table "public"."partos" add constraint "partos_virou_vaca_id_fkey" foreign key (virou_vaca_id) references "public"."vacas"(id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'producao_leite_vaca_id_fkey') then
+    alter table "public"."producao_leite" add constraint "producao_leite_vaca_id_fkey" foreign key (vaca_id) references "public"."vacas"(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'cios_vaca_id_fkey') then
+    alter table "public"."cios" add constraint "cios_vaca_id_fkey" foreign key (vaca_id) references "public"."vacas"(id) on delete cascade;
+  end if;
 
-CREATE UNIQUE INDEX itens_pkey ON public.itens USING btree (id);
+  -- unique constraints
+  if not exists (select 1 from pg_constraint where conname = 'lancamentos_item_id_mes_ano_user_id_key') then
+    alter table "public"."lancamentos" add constraint "lancamentos_item_id_mes_ano_user_id_key" unique using index "lancamentos_item_id_mes_ano_user_id_key";
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'vacas_numero_user_id_key') then
+    alter table "public"."vacas" add constraint "vacas_numero_user_id_key" unique using index "vacas_numero_user_id_key";
+  end if;
+end $$;
 
-CREATE UNIQUE INDEX lancamentos_item_id_mes_ano_user_id_key ON public.lancamentos USING btree (item_id, mes, ano, user_id);
+----------------------- RLS -----------------------
 
-CREATE UNIQUE INDEX lancamentos_pkey ON public.lancamentos USING btree (id);
+alter table "public"."categorias" enable row level security;
+alter table "public"."itens" enable row level security;
+alter table "public"."lancamentos" enable row level security;
+alter table "public"."vacas" enable row level security;
+alter table "public"."partos" enable row level security;
+alter table "public"."producao_leite" enable row level security;
+alter table "public"."cios" enable row level security;
+alter table "public"."vendas" enable row level security;
 
-CREATE UNIQUE INDEX partos_pkey ON public.partos USING btree (id);
+----------------------- grants -----------------------
 
-CREATE UNIQUE INDEX producao_leite_pkey ON public.producao_leite USING btree (id);
+grant delete, insert, references, select, trigger, truncate, update on "public"."categorias" to "anon", "authenticated";
+grant references, trigger, truncate on "public"."categorias" to "service_role";
+grant delete, insert, references, select, trigger, truncate, update on "public"."itens" to "anon", "authenticated";
+grant references, trigger, truncate on "public"."itens" to "service_role";
 
-CREATE UNIQUE INDEX vacas_numero_user_id_key ON public.vacas USING btree (numero, user_id);
+grant delete, insert, references, select, trigger, truncate, update on "public"."lancamentos" to "anon";
+grant delete, insert, references, select, trigger, truncate, update on "public"."lancamentos" to "authenticated";
+grant references, trigger, truncate on "public"."lancamentos" to "service_role";
 
-CREATE UNIQUE INDEX vacas_pkey ON public.vacas USING btree (id);
+grant delete, insert, references, select, trigger, truncate, update on "public"."vacas" to "anon";
+grant delete, insert, references, select, trigger, truncate, update on "public"."vacas" to "authenticated";
+grant references, trigger, truncate on "public"."vacas" to "service_role";
 
-CREATE UNIQUE INDEX vendas_pkey ON public.vendas USING btree (id);
+grant delete, insert, references, select, trigger, truncate, update on "public"."partos" to "anon";
+grant delete, insert, references, select, trigger, truncate, update on "public"."partos" to "authenticated";
+grant references, trigger, truncate on "public"."partos" to "service_role";
 
-alter table "public"."categorias" add constraint "categorias_pkey" PRIMARY KEY using index "categorias_pkey";
+grant delete, insert, references, select, trigger, truncate, update on "public"."producao_leite" to "anon";
+grant delete, insert, references, select, trigger, truncate, update on "public"."producao_leite" to "authenticated";
+grant references, trigger, truncate on "public"."producao_leite" to "service_role";
 
-alter table "public"."cios" add constraint "cios_pkey" PRIMARY KEY using index "cios_pkey";
+grant delete, insert, references, select, trigger, truncate, update on "public"."cios" to "anon";
+grant delete, insert, references, select, trigger, truncate, update on "public"."cios" to "authenticated";
+grant references, trigger, truncate on "public"."cios" to "service_role";
 
-alter table "public"."itens" add constraint "itens_pkey" PRIMARY KEY using index "itens_pkey";
+grant insert, references, select, trigger, truncate on "public"."vendas" to "anon";
+grant insert, references, select, trigger, truncate on "public"."vendas" to "authenticated";
+grant references, trigger, truncate on "public"."vendas" to "service_role";
 
-alter table "public"."lancamentos" add constraint "lancamentos_pkey" PRIMARY KEY using index "lancamentos_pkey";
+----------------------- RLS policies -----------------------
 
-alter table "public"."partos" add constraint "partos_pkey" PRIMARY KEY using index "partos_pkey";
+do $$ begin
+  drop policy if exists "Allow all select on categorias" on "public"."categorias";
+  create policy "Allow all select on categorias" on "public"."categorias" as permissive for select to public using (true);
+  drop policy if exists "Allow all insert on categorias" on "public"."categorias";
+  create policy "Allow all insert on categorias" on "public"."categorias" as permissive for insert to public with check (true);
+  drop policy if exists "Allow all update on categorias" on "public"."categorias";
+  create policy "Allow all update on categorias" on "public"."categorias" as permissive for update to public using (true);
+  drop policy if exists "Allow all delete on categorias" on "public"."categorias";
+  create policy "Allow all delete on categorias" on "public"."categorias" as permissive for delete to public using (true);
 
-alter table "public"."producao_leite" add constraint "producao_leite_pkey" PRIMARY KEY using index "producao_leite_pkey";
+  drop policy if exists "Allow all select on itens" on "public"."itens";
+  create policy "Allow all select on itens" on "public"."itens" as permissive for select to public using (true);
+  drop policy if exists "Allow all insert on itens" on "public"."itens";
+  create policy "Allow all insert on itens" on "public"."itens" as permissive for insert to public with check (true);
+  drop policy if exists "Allow all update on itens" on "public"."itens";
+  create policy "Allow all update on itens" on "public"."itens" as permissive for update to public using (true);
+  drop policy if exists "Allow all delete on itens" on "public"."itens";
+  create policy "Allow all delete on itens" on "public"."itens" as permissive for delete to public using (true);
 
-alter table "public"."vacas" add constraint "vacas_pkey" PRIMARY KEY using index "vacas_pkey";
+  drop policy if exists "Users can view their own lancamentos" on "public"."lancamentos";
+  create policy "Users can view their own lancamentos" on "public"."lancamentos" as permissive
+    for select to authenticated using (auth.uid() = user_id);
+  drop policy if exists "Users can insert their own lancamentos" on "public"."lancamentos";
+  create policy "Users can insert their own lancamentos" on "public"."lancamentos" as permissive
+    for insert to authenticated with check (auth.uid() = user_id);
+  drop policy if exists "Users can update their own lancamentos" on "public"."lancamentos";
+  create policy "Users can update their own lancamentos" on "public"."lancamentos" as permissive
+    for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  drop policy if exists "Users can delete their own lancamentos" on "public"."lancamentos";
+  create policy "Users can delete their own lancamentos" on "public"."lancamentos" as permissive
+    for delete to authenticated using (auth.uid() = user_id);
 
-alter table "public"."vendas" add constraint "vendas_pkey" PRIMARY KEY using index "vendas_pkey";
+  drop policy if exists "Users can view their own vacas" on "public"."vacas";
+  create policy "Users can view their own vacas" on "public"."vacas" as permissive
+    for select to authenticated using (auth.uid() = user_id);
+  drop policy if exists "Users can insert their own vacas" on "public"."vacas";
+  create policy "Users can insert their own vacas" on "public"."vacas" as permissive
+    for insert to authenticated with check (auth.uid() = user_id);
+  drop policy if exists "Users can update their own vacas" on "public"."vacas";
+  create policy "Users can update their own vacas" on "public"."vacas" as permissive
+    for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  drop policy if exists "Users can delete their own vacas" on "public"."vacas";
+  create policy "Users can delete their own vacas" on "public"."vacas" as permissive
+    for delete to authenticated using (auth.uid() = user_id);
 
-alter table "public"."categorias" add constraint "categorias_tipo_check" CHECK ((tipo = ANY (ARRAY['receita'::text, 'custo_variavel'::text, 'custo_fixo'::text]))) not valid;
+  drop policy if exists "Users can view their own partos" on "public"."partos";
+  create policy "Users can view their own partos" on "public"."partos" as permissive
+    for select to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can insert their own partos" on "public"."partos";
+  create policy "Users can insert their own partos" on "public"."partos" as permissive
+    for insert to authenticated with check (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can update their own partos" on "public"."partos";
+  create policy "Users can update their own partos" on "public"."partos" as permissive
+    for update to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can delete their own partos" on "public"."partos";
+  create policy "Users can delete their own partos" on "public"."partos" as permissive
+    for delete to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
 
-alter table "public"."categorias" validate constraint "categorias_tipo_check";
+  drop policy if exists "Users can view their own producao_leite" on "public"."producao_leite";
+  create policy "Users can view their own producao_leite" on "public"."producao_leite" as permissive
+    for select to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can insert their own producao_leite" on "public"."producao_leite";
+  create policy "Users can insert their own producao_leite" on "public"."producao_leite" as permissive
+    for insert to authenticated with check (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can delete their own producao_leite" on "public"."producao_leite";
+  create policy "Users can delete their own producao_leite" on "public"."producao_leite" as permissive
+    for delete to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
 
-alter table "public"."cios" add constraint "cios_vaca_id_fkey" FOREIGN KEY (vaca_id) REFERENCES public.vacas(id) ON DELETE CASCADE not valid;
+  drop policy if exists "Users can view their own cios" on "public"."cios";
+  create policy "Users can view their own cios" on "public"."cios" as permissive
+    for select to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can insert their own cios" on "public"."cios";
+  create policy "Users can insert their own cios" on "public"."cios" as permissive
+    for insert to authenticated with check (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can update their own cios" on "public"."cios";
+  create policy "Users can update their own cios" on "public"."cios" as permissive
+    for update to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+  drop policy if exists "Users can delete their own cios" on "public"."cios";
+  create policy "Users can delete their own cios" on "public"."cios" as permissive
+    for delete to authenticated using (vaca_id in (select id from public.vacas where user_id = auth.uid()));
+end $$;
 
-alter table "public"."cios" validate constraint "cios_vaca_id_fkey";
+----------------------- trigger -----------------------
 
-alter table "public"."itens" add constraint "itens_categoria_id_fkey" FOREIGN KEY (categoria_id) REFERENCES public.categorias(id) ON DELETE CASCADE not valid;
+create or replace function public.calcular_custo_total()
+returns trigger
+language plpgsql
+as $function$
+begin
+  if new.custo_total_manual is not null then
+    new.custo_total := new.custo_total_manual;
+  elsif new.quantidade is not null and new.valor_unitario is not null then
+    new.custo_total := round(new.quantidade * new.valor_unitario, 2);
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$function$;
 
-alter table "public"."itens" validate constraint "itens_categoria_id_fkey";
+drop trigger if exists trg_custo_total on public.lancamentos;
+create trigger trg_custo_total before insert or update on public.lancamentos
+  for each row execute function public.calcular_custo_total();
 
-alter table "public"."lancamentos" add constraint "lancamentos_ano_check" CHECK (((ano >= 2000) AND (ano <= 2100))) not valid;
+----------------------- view -----------------------
 
-alter table "public"."lancamentos" validate constraint "lancamentos_ano_check";
-
-alter table "public"."lancamentos" add constraint "lancamentos_item_id_fkey" FOREIGN KEY (item_id) REFERENCES public.itens(id) ON DELETE CASCADE not valid;
-
-alter table "public"."lancamentos" validate constraint "lancamentos_item_id_fkey";
-
-alter table "public"."lancamentos" add constraint "lancamentos_item_id_mes_ano_user_id_key" UNIQUE using index "lancamentos_item_id_mes_ano_user_id_key";
-
-alter table "public"."lancamentos" add constraint "lancamentos_mes_check" CHECK (((mes >= 1) AND (mes <= 12))) not valid;
-
-alter table "public"."lancamentos" validate constraint "lancamentos_mes_check";
-
-alter table "public"."lancamentos" add constraint "lancamentos_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE not valid;
-
-alter table "public"."lancamentos" validate constraint "lancamentos_user_id_fkey";
-
-alter table "public"."partos" add constraint "partos_vaca_id_fkey" FOREIGN KEY (vaca_id) REFERENCES public.vacas(id) ON DELETE CASCADE not valid;
-
-alter table "public"."partos" validate constraint "partos_vaca_id_fkey";
-
-alter table "public"."partos" add constraint "partos_virou_vaca_id_fkey" FOREIGN KEY (virou_vaca_id) REFERENCES public.vacas(id) not valid;
-
-alter table "public"."partos" validate constraint "partos_virou_vaca_id_fkey";
-
-alter table "public"."producao_leite" add constraint "producao_leite_vaca_id_fkey" FOREIGN KEY (vaca_id) REFERENCES public.vacas(id) ON DELETE CASCADE not valid;
-
-alter table "public"."producao_leite" validate constraint "producao_leite_vaca_id_fkey";
-
-alter table "public"."vacas" add constraint "vacas_numero_user_id_key" UNIQUE using index "vacas_numero_user_id_key";
-
-alter table "public"."vacas" add constraint "vacas_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE not valid;
-
-alter table "public"."vacas" validate constraint "vacas_user_id_fkey";
-
-alter table "public"."vendas" add constraint "vendas_animal_type_check" CHECK ((animal_type = ANY (ARRAY['vaca'::text, 'bezerro'::text]))) not valid;
-
-alter table "public"."vendas" validate constraint "vendas_animal_type_check";
-
-set check_function_bodies = off;
-
-CREATE OR REPLACE FUNCTION public.calcular_custo_total()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-BEGIN
-  IF NEW.custo_total_manual IS NOT NULL THEN
-    NEW.custo_total := NEW.custo_total_manual;
-  ELSIF NEW.quantidade IS NOT NULL AND NEW.valor_unitario IS NOT NULL THEN
-    NEW.custo_total := ROUND(NEW.quantidade * NEW.valor_unitario, 2);
-  END IF;
-  NEW.updated_at := NOW();
-  RETURN NEW;
-END;
-$function$
-;
-
-create or replace view "public"."resultado_mensal" as  SELECT l.mes,
+create or replace view "public"."resultado_mensal" as
+  select
+    l.mes,
     l.ano,
     l.user_id,
     c.tipo,
-    c.nome AS categoria,
-    i.nome AS item,
+    c.nome as categoria,
+    i.nome as item,
     i.unidade,
     l.quantidade,
     l.valor_unitario,
     l.custo_total,
-    sum(l.custo_total) OVER (PARTITION BY l.mes, l.ano, l.user_id, c.tipo) AS total_categoria,
-    sum(
-        CASE
-            WHEN (c.tipo = 'receita'::text) THEN l.custo_total
-            ELSE (0)::numeric
-        END) OVER (PARTITION BY l.mes, l.ano, l.user_id) AS receita_total,
-    sum(
-        CASE
-            WHEN (c.tipo = 'custo_variavel'::text) THEN l.custo_total
-            ELSE (0)::numeric
-        END) OVER (PARTITION BY l.mes, l.ano, l.user_id) AS total_custos_variaveis,
-    sum(
-        CASE
-            WHEN (c.tipo = 'custo_fixo'::text) THEN l.custo_total
-            ELSE (0)::numeric
-        END) OVER (PARTITION BY l.mes, l.ano, l.user_id) AS total_custos_fixos
-   FROM ((public.lancamentos l
-     JOIN public.itens i ON ((l.item_id = i.id)))
-     JOIN public.categorias c ON ((i.categoria_id = c.id)));
-
-
-grant delete on table "public"."categorias" to "anon";
-
-grant insert on table "public"."categorias" to "anon";
-
-grant references on table "public"."categorias" to "anon";
-
-grant select on table "public"."categorias" to "anon";
-
-grant trigger on table "public"."categorias" to "anon";
-
-grant truncate on table "public"."categorias" to "anon";
-
-grant update on table "public"."categorias" to "anon";
-
-grant delete on table "public"."categorias" to "authenticated";
-
-grant insert on table "public"."categorias" to "authenticated";
-
-grant references on table "public"."categorias" to "authenticated";
-
-grant select on table "public"."categorias" to "authenticated";
-
-grant trigger on table "public"."categorias" to "authenticated";
-
-grant truncate on table "public"."categorias" to "authenticated";
-
-grant update on table "public"."categorias" to "authenticated";
-
-grant references on table "public"."categorias" to "service_role";
-
-grant trigger on table "public"."categorias" to "service_role";
-
-grant truncate on table "public"."categorias" to "service_role";
-
-grant delete on table "public"."cios" to "anon";
-
-grant insert on table "public"."cios" to "anon";
-
-grant references on table "public"."cios" to "anon";
-
-grant select on table "public"."cios" to "anon";
-
-grant trigger on table "public"."cios" to "anon";
-
-grant truncate on table "public"."cios" to "anon";
-
-grant update on table "public"."cios" to "anon";
-
-grant delete on table "public"."cios" to "authenticated";
-
-grant insert on table "public"."cios" to "authenticated";
-
-grant references on table "public"."cios" to "authenticated";
-
-grant select on table "public"."cios" to "authenticated";
-
-grant trigger on table "public"."cios" to "authenticated";
-
-grant truncate on table "public"."cios" to "authenticated";
-
-grant update on table "public"."cios" to "authenticated";
-
-grant references on table "public"."cios" to "service_role";
-
-grant trigger on table "public"."cios" to "service_role";
-
-grant truncate on table "public"."cios" to "service_role";
-
-grant delete on table "public"."itens" to "anon";
-
-grant insert on table "public"."itens" to "anon";
-
-grant references on table "public"."itens" to "anon";
-
-grant select on table "public"."itens" to "anon";
-
-grant trigger on table "public"."itens" to "anon";
-
-grant truncate on table "public"."itens" to "anon";
-
-grant update on table "public"."itens" to "anon";
-
-grant delete on table "public"."itens" to "authenticated";
-
-grant insert on table "public"."itens" to "authenticated";
-
-grant references on table "public"."itens" to "authenticated";
-
-grant select on table "public"."itens" to "authenticated";
-
-grant trigger on table "public"."itens" to "authenticated";
-
-grant truncate on table "public"."itens" to "authenticated";
-
-grant update on table "public"."itens" to "authenticated";
-
-grant references on table "public"."itens" to "service_role";
-
-grant trigger on table "public"."itens" to "service_role";
-
-grant truncate on table "public"."itens" to "service_role";
-
-grant delete on table "public"."lancamentos" to "anon";
-
-grant insert on table "public"."lancamentos" to "anon";
-
-grant references on table "public"."lancamentos" to "anon";
-
-grant select on table "public"."lancamentos" to "anon";
-
-grant trigger on table "public"."lancamentos" to "anon";
-
-grant truncate on table "public"."lancamentos" to "anon";
-
-grant update on table "public"."lancamentos" to "anon";
-
-grant delete on table "public"."lancamentos" to "authenticated";
-
-grant insert on table "public"."lancamentos" to "authenticated";
-
-grant references on table "public"."lancamentos" to "authenticated";
-
-grant select on table "public"."lancamentos" to "authenticated";
-
-grant trigger on table "public"."lancamentos" to "authenticated";
-
-grant truncate on table "public"."lancamentos" to "authenticated";
-
-grant update on table "public"."lancamentos" to "authenticated";
-
-grant references on table "public"."lancamentos" to "service_role";
-
-grant trigger on table "public"."lancamentos" to "service_role";
-
-grant truncate on table "public"."lancamentos" to "service_role";
-
-grant delete on table "public"."partos" to "anon";
-
-grant insert on table "public"."partos" to "anon";
-
-grant references on table "public"."partos" to "anon";
-
-grant select on table "public"."partos" to "anon";
-
-grant trigger on table "public"."partos" to "anon";
-
-grant truncate on table "public"."partos" to "anon";
-
-grant update on table "public"."partos" to "anon";
-
-grant delete on table "public"."partos" to "authenticated";
-
-grant insert on table "public"."partos" to "authenticated";
-
-grant references on table "public"."partos" to "authenticated";
-
-grant select on table "public"."partos" to "authenticated";
-
-grant trigger on table "public"."partos" to "authenticated";
-
-grant truncate on table "public"."partos" to "authenticated";
-
-grant update on table "public"."partos" to "authenticated";
-
-grant references on table "public"."partos" to "service_role";
-
-grant trigger on table "public"."partos" to "service_role";
-
-grant truncate on table "public"."partos" to "service_role";
-
-grant delete on table "public"."producao_leite" to "anon";
-
-grant insert on table "public"."producao_leite" to "anon";
-
-grant references on table "public"."producao_leite" to "anon";
-
-grant select on table "public"."producao_leite" to "anon";
-
-grant trigger on table "public"."producao_leite" to "anon";
-
-grant truncate on table "public"."producao_leite" to "anon";
-
-grant update on table "public"."producao_leite" to "anon";
-
-grant delete on table "public"."producao_leite" to "authenticated";
-
-grant insert on table "public"."producao_leite" to "authenticated";
-
-grant references on table "public"."producao_leite" to "authenticated";
-
-grant select on table "public"."producao_leite" to "authenticated";
-
-grant trigger on table "public"."producao_leite" to "authenticated";
-
-grant truncate on table "public"."producao_leite" to "authenticated";
-
-grant update on table "public"."producao_leite" to "authenticated";
-
-grant references on table "public"."producao_leite" to "service_role";
-
-grant trigger on table "public"."producao_leite" to "service_role";
-
-grant truncate on table "public"."producao_leite" to "service_role";
-
-grant delete on table "public"."vacas" to "anon";
-
-grant insert on table "public"."vacas" to "anon";
-
-grant references on table "public"."vacas" to "anon";
-
-grant select on table "public"."vacas" to "anon";
-
-grant trigger on table "public"."vacas" to "anon";
-
-grant truncate on table "public"."vacas" to "anon";
-
-grant update on table "public"."vacas" to "anon";
-
-grant delete on table "public"."vacas" to "authenticated";
-
-grant insert on table "public"."vacas" to "authenticated";
-
-grant references on table "public"."vacas" to "authenticated";
-
-grant select on table "public"."vacas" to "authenticated";
-
-grant trigger on table "public"."vacas" to "authenticated";
-
-grant truncate on table "public"."vacas" to "authenticated";
-
-grant update on table "public"."vacas" to "authenticated";
-
-grant references on table "public"."vacas" to "service_role";
-
-grant trigger on table "public"."vacas" to "service_role";
-
-grant truncate on table "public"."vacas" to "service_role";
-
-grant references on table "public"."vendas" to "anon";
-
-grant trigger on table "public"."vendas" to "anon";
-
-grant truncate on table "public"."vendas" to "anon";
-
-grant references on table "public"."vendas" to "authenticated";
-
-grant trigger on table "public"."vendas" to "authenticated";
-
-grant truncate on table "public"."vendas" to "authenticated";
-
-grant references on table "public"."vendas" to "service_role";
-
-grant trigger on table "public"."vendas" to "service_role";
-
-grant truncate on table "public"."vendas" to "service_role";
-
-
-  create policy "Allow all delete on categorias"
-  on "public"."categorias"
-  as permissive
-  for delete
-  to public
-using (true);
-
-
-
-  create policy "Allow all insert on categorias"
-  on "public"."categorias"
-  as permissive
-  for insert
-  to public
-with check (true);
-
-
-
-  create policy "Allow all select on categorias"
-  on "public"."categorias"
-  as permissive
-  for select
-  to public
-using (true);
-
-
-
-  create policy "Allow all update on categorias"
-  on "public"."categorias"
-  as permissive
-  for update
-  to public
-using (true);
-
-
-
-  create policy "Users can delete their own cios"
-  on "public"."cios"
-  as permissive
-  for delete
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can insert their own cios"
-  on "public"."cios"
-  as permissive
-  for insert
-  to authenticated
-with check ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can update their own cios"
-  on "public"."cios"
-  as permissive
-  for update
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can view their own cios"
-  on "public"."cios"
-  as permissive
-  for select
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Allow all delete on itens"
-  on "public"."itens"
-  as permissive
-  for delete
-  to public
-using (true);
-
-
-
-  create policy "Allow all insert on itens"
-  on "public"."itens"
-  as permissive
-  for insert
-  to public
-with check (true);
-
-
-
-  create policy "Allow all select on itens"
-  on "public"."itens"
-  as permissive
-  for select
-  to public
-using (true);
-
-
-
-  create policy "Allow all update on itens"
-  on "public"."itens"
-  as permissive
-  for update
-  to public
-using (true);
-
-
-
-  create policy "Users can delete their own lancamentos"
-  on "public"."lancamentos"
-  as permissive
-  for delete
-  to authenticated
-using ((auth.uid() = user_id));
-
-
-
-  create policy "Users can insert their own lancamentos"
-  on "public"."lancamentos"
-  as permissive
-  for insert
-  to authenticated
-with check ((auth.uid() = user_id));
-
-
-
-  create policy "Users can update their own lancamentos"
-  on "public"."lancamentos"
-  as permissive
-  for update
-  to authenticated
-using ((auth.uid() = user_id))
-with check ((auth.uid() = user_id));
-
-
-
-  create policy "Users can view their own lancamentos"
-  on "public"."lancamentos"
-  as permissive
-  for select
-  to authenticated
-using ((auth.uid() = user_id));
-
-
-
-  create policy "Users can delete their own partos"
-  on "public"."partos"
-  as permissive
-  for delete
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can insert their own partos"
-  on "public"."partos"
-  as permissive
-  for insert
-  to authenticated
-with check ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can update their own partos"
-  on "public"."partos"
-  as permissive
-  for update
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can view their own partos"
-  on "public"."partos"
-  as permissive
-  for select
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can delete their own producao_leite"
-  on "public"."producao_leite"
-  as permissive
-  for delete
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can insert their own producao_leite"
-  on "public"."producao_leite"
-  as permissive
-  for insert
-  to authenticated
-with check ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can view their own producao_leite"
-  on "public"."producao_leite"
-  as permissive
-  for select
-  to authenticated
-using ((vaca_id IN ( SELECT vacas.id
-   FROM public.vacas
-  WHERE (vacas.user_id = auth.uid()))));
-
-
-
-  create policy "Users can delete their own vacas"
-  on "public"."vacas"
-  as permissive
-  for delete
-  to authenticated
-using ((auth.uid() = user_id));
-
-
-
-  create policy "Users can insert their own vacas"
-  on "public"."vacas"
-  as permissive
-  for insert
-  to authenticated
-with check ((auth.uid() = user_id));
-
-
-
-  create policy "Users can update their own vacas"
-  on "public"."vacas"
-  as permissive
-  for update
-  to authenticated
-using ((auth.uid() = user_id))
-with check ((auth.uid() = user_id));
-
-
-
-  create policy "Users can view their own vacas"
-  on "public"."vacas"
-  as permissive
-  for select
-  to authenticated
-using ((auth.uid() = user_id));
-
-
-CREATE TRIGGER trg_custo_total BEFORE INSERT OR UPDATE ON public.lancamentos FOR EACH ROW EXECUTE FUNCTION public.calcular_custo_total();
-
-
+    sum(l.custo_total) over (partition by l.mes, l.ano, l.user_id, c.tipo) as total_categoria,
+    sum(case when c.tipo = 'receita' then l.custo_total else 0 end) over (partition by l.mes, l.ano, l.user_id) as receita_total,
+    sum(case when c.tipo = 'custo_variavel' then l.custo_total else 0 end) over (partition by l.mes, l.ano, l.user_id) as total_custos_variaveis,
+    sum(case when c.tipo = 'custo_fixo' then l.custo_total else 0 end) over (partition by l.mes, l.ano, l.user_id) as total_custos_fixos
+  from lancamentos l
+  join itens i on l.item_id = i.id
+  join categorias c on i.categoria_id = c.id;

@@ -83,6 +83,7 @@ export interface VacaInput {
 export interface Parto {
   id: number
   vaca_id: number
+  numero_parto: number | null
   data_parto: string
   sexo_bezerro: string | null
   numero_bezerro: number | null
