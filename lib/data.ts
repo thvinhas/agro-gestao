@@ -169,7 +169,7 @@ export async function getPartos(vacaId: number): Promise<Parto[]> {
     .from('partos')
     .select('*')
     .eq('vaca_id', vacaId)
-    .order('data_parto', { ascending: false })
+    .order('data_parto', { ascending: true })
 
   if (error) throw error
   return data ?? []
